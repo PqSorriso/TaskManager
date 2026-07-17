@@ -760,6 +760,11 @@ const TaskManager = (() => {
     }
     await TaskDB.update(t);
 
+    // Log de atividade
+    if (typeof ActivityLog !== 'undefined') {
+      ActivityLog.add(t.done ? 'concluir' : 'reabrir', t.text, t.completedLate ? 'com atraso' : '');
+    }
+
     // Gamification XP
     if (t.done && typeof Gamification !== 'undefined') {
       Gamification.taskCompleted(t.priority);
