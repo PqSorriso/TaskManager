@@ -189,11 +189,6 @@ const TaskManager = (() => {
       d.addEventListener('click', () => deleteTask(Number(d.dataset.id), d.closest('.task-row')));
     });
 
-    // Log de atividade
-    if (typeof ActivityLog !== 'undefined') {
-      ActivityLog.add(t.done ? 'concluir' : 'reabrir', t.text, t.completedLate ? 'com atraso' : '');
-    }
-
     // Bind pin/star
     document.querySelectorAll('.task-star').forEach(s => {
       s.addEventListener('click', async (e) => {
