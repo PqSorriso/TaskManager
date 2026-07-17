@@ -189,6 +189,11 @@ const TaskManager = (() => {
       d.addEventListener('click', () => deleteTask(Number(d.dataset.id), d.closest('.task-row')));
     });
 
+    // Log de atividade
+    if (typeof ActivityLog !== 'undefined') {
+      ActivityLog.add(t.done ? 'concluir' : 'reabrir', t.text, t.completedLate ? 'com atraso' : '');
+    }
+
     // Bind pin/star
     document.querySelectorAll('.task-star').forEach(s => {
       s.addEventListener('click', async (e) => {
@@ -690,6 +695,11 @@ const TaskManager = (() => {
     task.id = id;
     tasks.unshift(task);
 
+    // Log de atividade
+    if (typeof ActivityLog !== 'undefined') {
+      ActivityLog.add('criar', task.text, task.priority.toUpperCase());
+    }
+
     // Clear inputs
     taskInput.value = '';
     if (descInput) descInput.value = '';
@@ -921,6 +931,9 @@ const TaskManager = (() => {
 
     // Salvar na lixeira
     if (typeof Archive !== 'undefined') Archive.trashTask(task);
+
+    // Log
+    if (typeof ActivityLog !== 'undefined') ActivityLog.add('excluir', task.text);
 
     el.style.animation = 'row-out 0.25s ease forwards';
     setTimeout(async () => {

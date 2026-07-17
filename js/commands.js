@@ -53,6 +53,8 @@ const Commands = (() => {
     { icon: '📧', label: 'Enviar resumo por email', shortcut: '', action: () => { close(); if (typeof Outlook !== 'undefined') Outlook.emailDaySummary(); } },
     { icon: '📄', label: 'Exportar Relatório PDF', shortcut: '', action: () => { close(); if (typeof Outlook !== 'undefined') Outlook.exportPDF(); } },
     { icon: '📊', label: 'Dashboard Executivo', shortcut: '', action: () => { close(); if (typeof Dashboard !== 'undefined') Dashboard.open(); } },
+    { icon: '🎯', label: 'Metas Semanais/Mensais', shortcut: '', action: () => { close(); if (typeof Goals !== 'undefined') Goals.open(); } },
+    { icon: '📜', label: 'Log de Atividades', shortcut: '', action: () => { close(); if (typeof ActivityLog !== 'undefined') ActivityLog.open(); } },
   ];
 
   function open() {

@@ -48,6 +48,8 @@
     Onboarding.init();
     PixelAI.init();
     DayPlan.init();
+    ActivityLog.init();
+    Goals.init();
     PixelPatterns.init();
 
     // Auto-refresh a cada 60s pra atualizar overdue por horário
