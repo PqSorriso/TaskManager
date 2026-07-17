@@ -56,6 +56,7 @@ const ASSETS = [
   './js/outlook.js',
   './js/sessioncomplete.js',
   './js/pixelpatterns.js',
+  './js/dashboard.js',
 ];
 
 // Install — cacheia tudo

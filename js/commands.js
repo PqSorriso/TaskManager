@@ -52,6 +52,7 @@ const Commands = (() => {
     { icon: '📅', label: 'Exportar dia pro Outlook (.ics)', shortcut: '', action: () => { close(); if (typeof Outlook !== 'undefined') Outlook.exportDayICS(); } },
     { icon: '📧', label: 'Enviar resumo por email', shortcut: '', action: () => { close(); if (typeof Outlook !== 'undefined') Outlook.emailDaySummary(); } },
     { icon: '📄', label: 'Exportar Relatório PDF', shortcut: '', action: () => { close(); if (typeof Outlook !== 'undefined') Outlook.exportPDF(); } },
+    { icon: '📊', label: 'Dashboard Executivo', shortcut: '', action: () => { close(); if (typeof Dashboard !== 'undefined') Dashboard.open(); } },
   ];
 
   function open() {
