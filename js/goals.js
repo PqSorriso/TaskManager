@@ -160,7 +160,12 @@ var Goals = (function() {
   function getWeeklyPct() { return Math.min(100, Math.round((getWeeklyDone() / goals.weeklyTarget) * 100)); }
   function getMonthlyPct() { return Math.min(100, Math.round((getMonthlyDone() / goals.monthlyTarget) * 100)); }
 
-  function init() { load(); }
+  function init() {
+    load();
+    var btnGoals = document.getElementById('btnGoals');
+    if (btnGoals) btnGoals.addEventListener('click', open);
+  }
+
 
   return {
     init: init,
