@@ -39,7 +39,28 @@ const Themes = (() => {
   function init() {
     load();
     apply(currentTheme);
+    // Auto-theme por horário
+    checkAutoTheme();
+    setInterval(checkAutoTheme, 600000); // a cada 10 min
   }
 
-  return { init: init, apply: apply, getCurrent: getCurrent, getAll: getAll };
+  function checkAutoTheme() {
+    if (typeof Config !== 'undefined' && !Config.get('autoTheme')) return;
+    var saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && saved !== 'auto') return; // usuário escolheu manualmente
+
+    var h = new Date().getHours();
+    var newTheme = (h >= 6 && h < 18) ? 'light' : 'dark';
+    if (newTheme !== currentTheme) apply(newTheme);
+  }
+
+  function setAuto(enabled) {
+    if (enabled) {
+      localStorage.setItem(STORAGE_KEY, 'auto');
+      checkAutoTheme();
+    }
+  }
+
+  return { init: init, apply: apply, getCurrent: getCurrent, getAll: getAll, setAuto: setAuto };
+
 })();

@@ -456,6 +456,45 @@ var Outlook = (function() {
     btnExportPDF.addEventListener('click', exportPDF);
   }
 
+  // === EXPORTAR CSV ===
+  function exportCSV() {
+    var tasks = typeof TaskManager !== 'undefined' ? (TaskManager.getAllWithArchive ? TaskManager.getAllWithArchive() : TaskManager.getAll()) : [];
+    if (!tasks.length) {
+      if (typeof Notifications !== 'undefined') Notifications.showToast('📊 CSV', 'Nenhuma tarefa!', 'warn', 3000);
+      return;
+    }
+
+    var header = 'Tarefa,Prioridade,Status,Vencimento,Horário,Categoria,Projeto,Criada em,Concluída em,Atrasada\n';
+    var rows = tasks.map(function(t) {
+      var status = t.done ? 'Concluída' : 'Pendente';
+      var late = t.completedLate ? 'Sim' : 'Não';
+      var completedAt = t.completedAt ? t.completedAt.substring(0, 10) : '';
+      var createdAt = t.createdAt ? t.createdAt.substring(0, 10) : '';
+      return '"' + (t.text || '').replace(/"/g, '""') + '",' +
+        (t.priority || 'media') + ',' +
+        status + ',' +
+        (t.dueDate || '') + ',' +
+        (t.dueTime || '') + ',' +
+        '"' + (t.category || '').replace(/"/g, '""') + '",' +
+        '"' + (t.project || 'Geral').replace(/"/g, '""') + '",' +
+        createdAt + ',' +
+        completedAt + ',' +
+        late;
+    }).join('\n');
+
+    var csv = '\uFEFF' + header + rows;
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'fceux_tarefas_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    if (typeof Notifications !== 'undefined') Notifications.showToast('📊 CSV', 'Exportado com sucesso!', 'success', 3000);
+    if (typeof Sounds !== 'undefined') Sounds.complete();
+  }
+
   return {
     exportICS: exportICS,
     sendEmail: sendEmail,

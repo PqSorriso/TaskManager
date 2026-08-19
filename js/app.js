@@ -51,6 +51,7 @@
     ActivityLog.init();
     Goals.init();
     PixelPatterns.init();
+    Changelog.init();
 
     // Auto-refresh a cada 60s pra atualizar overdue por horário
     setInterval(function() {

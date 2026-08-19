@@ -55,6 +55,8 @@ const Commands = (() => {
     { icon: '📊', label: 'Dashboard Executivo', shortcut: '', action: () => { close(); if (typeof Dashboard !== 'undefined') Dashboard.open(); } },
     { icon: '🎯', label: 'Metas Semanais/Mensais', shortcut: '', action: () => { close(); if (typeof Goals !== 'undefined') Goals.open(); } },
     { icon: '📜', label: 'Log de Atividades', shortcut: '', action: () => { close(); if (typeof ActivityLog !== 'undefined') ActivityLog.open(); } },
+    { icon: '📊', label: 'Exportar CSV', shortcut: '', action: () => { close(); if (typeof Outlook !== 'undefined') Outlook.exportCSV(); } },
+    { icon: '🆕', label: 'O que há de novo (Changelog)', shortcut: '', action: () => { close(); if (typeof Changelog !== 'undefined') Changelog.show(); } },
   ];
 
   function open() {

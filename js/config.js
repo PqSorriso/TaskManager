@@ -27,6 +27,7 @@ const Config = (() => {
     particles: true,
     tooltips: true,
     matrix: true,
+    autoTheme: false,
     matrixTime: 5,
   };
 
@@ -85,6 +86,7 @@ const Config = (() => {
     setToggle('cfgParticles', settings.particles);
     setToggle('cfgTooltips', settings.tooltips);
     setToggle('cfgMatrix', settings.matrix);
+    setToggle('cfgAutoTheme', settings.autoTheme);
     var cfgMatrixTime = document.getElementById('cfgMatrixTime');
     if (cfgMatrixTime) cfgMatrixTime.value = settings.matrixTime;
 
@@ -155,6 +157,8 @@ const Config = (() => {
     settings.particles = getToggle('cfgParticles');
     settings.tooltips = getToggle('cfgTooltips');
     settings.matrix = getToggle('cfgMatrix');
+    settings.autoTheme = getToggle('cfgAutoTheme');
+    if (settings.autoTheme && typeof Themes !== 'undefined') Themes.setAuto(true);
     settings.matrixTime = Number(document.getElementById('cfgMatrixTime').value) || 5;
 
     // Atualizar Matrix
