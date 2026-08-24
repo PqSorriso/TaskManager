@@ -736,6 +736,10 @@ var PixelAI = (function() {
     addMessage(text, 'user');
     chatInput.value = '';
 
+    // Track para conquista secreta
+    var pc = parseInt(localStorage.getItem('fceux_pixel_chats') || '0') + 1;
+    localStorage.setItem('fceux_pixel_chats', String(pc));
+
     if (typeof Sounds !== 'undefined') Sounds.click();
 
     // Simular tempo de "pensar"

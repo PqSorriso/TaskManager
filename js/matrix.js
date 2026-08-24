@@ -33,6 +33,9 @@ const Matrix = (() => {
 
     screen.classList.add('visible');
     draw(fontSize);
+    // Track para conquista secreta
+    var mv = parseInt(localStorage.getItem('fceux_matrix_views') || '0') + 1;
+    localStorage.setItem('fceux_matrix_views', String(mv));
   }
 
   function draw(fontSize) {

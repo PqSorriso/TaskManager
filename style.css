@@ -4058,8 +4058,8 @@ input[type="datetime-local"] {
 .kanban-card.kc-baixa { border-left: 3px solid var(--pri-baixa); }
 
 /* ================================================================
-   99. DASHBOARD EXECUTIVO
-   ================================================================ */
+99. DASHBOARD EXECUTIVO
+================================================================ */
 .dashboard-overlay {
   position: fixed;
   inset: 0;
@@ -4214,3 +4214,49 @@ input[type="datetime-local"] {
 .db-hour-fill { width: 100%; background: linear-gradient(0deg, #0066cc, #00aaff); border-radius: 2px 2px 0 0; }
 .db-hour-col.best .db-hour-fill { background: linear-gradient(0deg, #00aa44, #00ff66); }
 .db-hour-lbl { font-size: 8px; color: #006688; margin-top: 2px; }
+
+/* ================================================================
+100. FILTROS RÁPIDOS
+================================================================ */
+.quick-filters {
+  padding: 4px 12px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.qf-btn {
+  background: none;
+  border: 1px solid rgba(0,80,160,0.3);
+  color: #006688;
+  font-family: var(--font-main);
+  font-size: 10px;
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.qf-btn:hover { color: var(--text-cyan); border-color: rgba(0,170,255,0.4); }
+.qf-btn.active { background: rgba(0,100,200,0.3); color: var(--text-cyan); border-color: rgba(0,170,255,0.5); }
+.qf-btn.danger { border-color: rgba(200,0,0,0.4); color: var(--pri-alta); }
+.qf-btn.danger.active { background: rgba(200,0,0,0.2); }
+
+/* ================================================================
+101. TAGS COLORIDAS
+================================================================ */
+.task-tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin: 0 2px;
+  font-family: var(--font-main);
+  vertical-align: middle;
+}
+
+.badge-card.secret { border-style: dashed; opacity: 0.7; }
+.badge-card.secret:hover { opacity: 1; }

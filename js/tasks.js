@@ -7,6 +7,7 @@ const TaskManager = (() => {
   let currentFilter = 'all';
   let selectedId = null;
   let searchQuery = '';
+  let quickFilter = 'all';
   let currentSort = 'priority';
   let currentProject = 'all';
   let currentGroup = 'none';
@@ -99,6 +100,20 @@ const TaskManager = (() => {
     setTimeout(() => container.remove(), 2500);
   }
 
+  // Tags coloridas
+  var tagColors = ['#00aaff', '#ff6644', '#aa44ff', '#00cc66', '#ffaa00', '#ff44aa', '#44dddd', '#8888ff'];
+
+  function renderTextWithTags(text) {
+    if (!text) return '';
+    var escaped = esc(text);
+    return escaped.replace(/#([a-zA-ZÀ-ú0-9_]+)/g, function(match, tag) {
+      var colorIdx = 0;
+      for (var i = 0; i < tag.length; i++) colorIdx += tag.charCodeAt(i);
+      var color = tagColors[colorIdx % tagColors.length];
+      return '<span class="task-tag" style="background:' + color + '22;color:' + color + ';border:1px solid ' + color + '44">#' + tag + '</span>';
+    });
+  }
+
   // === RENDER ===
   function render() {
     let filtered = tasks.filter(t => {
@@ -121,6 +136,29 @@ const TaskManager = (() => {
         (t.description || '').toLowerCase().includes(q) ||
         (t.category || '').toLowerCase().includes(q)
       );
+    }
+
+    // Quick Filter
+    if (quickFilter && quickFilter !== 'all') {
+      var todayStr = new Date().toISOString().slice(0, 10);
+      if (quickFilter === 'today') {
+        filtered = filtered.filter(function(t) { return t.dueDate === todayStr || (!t.dueDate && t.createdAt && t.createdAt.startsWith(todayStr)); });
+      } else if (quickFilter === 'overdue') {
+        filtered = filtered.filter(function(t) {
+          if (t.done || !t.dueDate) return false;
+          if (t.dueDate < todayStr) return true;
+          if (t.dueDate === todayStr && t.dueTime) {
+            var p = t.dueTime.split(':');
+            var d = new Date(); d.setHours(parseInt(p[0]), parseInt(p[1]), 0, 0);
+            if (new Date() > d) return true;
+          }
+          return false;
+        });
+      } else if (quickFilter === 'alta') {
+        filtered = filtered.filter(function(t) { return !t.done && t.priority === 'alta'; });
+      } else if (quickFilter === 'nodate') {
+        filtered = filtered.filter(function(t) { return !t.done && !t.dueDate; });
+      }
     }
 
     // Ordenação
@@ -268,7 +306,7 @@ const TaskManager = (() => {
       '<div class="drag-handle" draggable="true">⠿</div>' +
       '<div class="task-star' + (t.pinned ? ' pinned' : '') + '" data-id="' + t.id + '">' + (t.pinned ? '★' : '☆') + '</div>' +
       '<div class="task-check' + (t.done ? ' checked' : '') + '" data-id="' + t.id + '">' + (t.done ? '[X]' : '[ ]') + '</div>' +
-      '<div class="task-text-cell">' + esc(t.text) + '</div>' +
+      '<div class="task-text-cell">' + renderTextWithTags(t.text) + '</div>' +
       '<div class="task-cat-cell">' + esc(cat) + '</div>' +
       '<div class="task-priority-cell p-' + t.priority + '">' + t.priority.toUpperCase() + '</div>' +
       '<div class="task-due-cell' + dc + '">' + dd + '</div>' +
@@ -1287,6 +1325,16 @@ const TaskManager = (() => {
       Notifications.showToast('📂 MOVIDA', '"' + t.text + '" → ' + project, 'success', 3000);
     }
   }
+
+  // Quick Filters
+  document.querySelectorAll('.qf-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.qf-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      quickFilter = btn.dataset.qf;
+      render();
+    });
+  });
 
   // === PUBLIC API ===
   return {

@@ -52,6 +52,16 @@ const Badges = (() => {
     { id: 'zero_overdue',    icon: '✨', name: 'Perfeito',            desc: 'Zero tarefas atrasadas por 7 dias',    check: (s) => s.zeroDays >= 7 },
     { id: 'mascot_click',    icon: '🤖', name: 'Amigo do PIXEL',     desc: 'Clicou no mascote 50 vezes',           check: (s) => s.mascotClicks >= 50 },
     { id: 'first_backup',    icon: '💾', name: 'Precavido',           desc: 'Fez o primeiro backup/export',         check: (s) => s.backups >= 1 },
+
+    // === CONQUISTAS SECRETAS (Easter Eggs) ===
+    { id: 'secret_boss',      icon: '🕵️', name: '???',               desc: '???',                                   check: (s) => s.bossMode >= 3, secret: true, realName: 'Agente Secreto', realDesc: 'Usou Modo Boss 3 vezes' },
+    { id: 'secret_night',     icon: '🦉', name: '???',               desc: '???',                                   check: (s) => s.nightOwl >= 5, secret: true, realName: 'Coruja Noturna', realDesc: 'Completou tarefas depois das 23h (5x)' },
+    { id: 'secret_100',       icon: '💯', name: '???',               desc: '???',                                   check: (s) => s.totalDone >= 100, secret: true, realName: 'Centurião', realDesc: 'Completou 100 tarefas no total' },
+    { id: 'secret_500',       icon: '🏆', name: '???',               desc: '???',                                   check: (s) => s.totalDone >= 500, secret: true, realName: 'Lendário', realDesc: 'Completou 500 tarefas no total' },
+    { id: 'secret_matrix',    icon: '🟢', name: '???',               desc: '???',                                   check: (s) => s.matrixViews >= 10, secret: true, realName: 'Neo', realDesc: 'Viu o screensaver Matrix 10 vezes' },
+    { id: 'secret_pet',       icon: '🐉', name: '???',               desc: '???',                                   check: (s) => s.petTricks >= 20, secret: true, realName: 'Domador', realDesc: 'Fez o pet fazer 20 truques' },
+    { id: 'secret_streak30',  icon: '🔥', name: '???',               desc: '???',                                   check: (s) => s.maxStreak >= 30, secret: true, realName: 'Imparável', realDesc: 'Streak de 30 dias seguidos' },
+    { id: 'secret_pixel100',  icon: '🤖', name: '???',               desc: '???',                                   check: (s) => s.pixelChats >= 100, secret: true, realName: 'BFF do PIXEL', realDesc: 'Conversou com PIXEL 100 vezes' },
   ];
 
   function load() {
@@ -89,7 +99,13 @@ const Badges = (() => {
       zeroDays: parseInt(localStorage.getItem('fceux_zero_overdue_days') || '0'),
       mascotClicks: parseInt(localStorage.getItem('fceux_mascot_clicks') || '0'),
       backups: parseInt(localStorage.getItem('fceux_backup_count') || '0'),
+      bossMode: parseInt(localStorage.getItem('fceux_boss_count') || '0'),
+      matrixViews: parseInt(localStorage.getItem('fceux_matrix_views') || '0'),
+      petTricks: parseInt(localStorage.getItem('fceux_pet_tricks') || '0'),
+      maxStreak: parseInt(localStorage.getItem('fceux_max_streak') || '0'),
+      pixelChats: parseInt(localStorage.getItem('fceux_pixel_chats') || '0'),
     };
+
 
     if (typeof Gamification !== 'undefined') {
       const info = Gamification.getLevelInfo();
@@ -206,11 +222,17 @@ const Badges = (() => {
     html += '<div class="badge-grid">';
     allBadges.forEach(b => {
       const isUnlocked = !!unlocked[b.id];
-      html += '<div class="badge-card ' + (isUnlocked ? 'unlocked' : 'locked') + '">' +
-        '<div class="badge-icon">' + (isUnlocked ? b.icon : '🔒') + '</div>' +
-        '<div class="badge-name">' + b.name + '</div>' +
-        '<div class="badge-desc">' + b.desc + '</div>' +
-        (isUnlocked ? '<div class="badge-date">📅 ' + unlocked[b.id].date + '</div>' : '<div class="badge-locked-text">Bloqueada</div>') +
+      var displayName = b.name;
+      var displayDesc = b.desc;
+      if (isUnlocked && b.secret) {
+        displayName = b.realName;
+        displayDesc = b.realDesc;
+      }
+      html += '<div class="badge-card ' + (isUnlocked ? 'unlocked' : 'locked') + (b.secret && !isUnlocked ? ' secret' : '') + '">' +
+        '<div class="badge-icon">' + (isUnlocked ? b.icon : (b.secret ? '❓' : '🔒')) + '</div>' +
+        '<div class="badge-name">' + displayName + '</div>' +
+        '<div class="badge-desc">' + displayDesc + '</div>' +
+        (isUnlocked ? '<div class="badge-date">📅 ' + unlocked[b.id].date + '</div>' : (b.secret ? '<div class="badge-locked-text">🤫 Secreta</div>' : '<div class="badge-locked-text">Bloqueada</div>')) +
         '</div>';
     });
     html += '</div>';

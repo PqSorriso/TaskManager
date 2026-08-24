@@ -293,6 +293,9 @@ const Pet = (() => {
     if (typeof Gamification !== 'undefined') {
       Gamification.addBonusXP(5, 'Truque do pet!');
     }
+    // Track para conquista secreta
+    var pt = parseInt(localStorage.getItem('fceux_pet_tricks') || '0') + 1;
+    localStorage.setItem('fceux_pet_tricks', String(pt));
   }
 
   return { init, redraw, onTaskCompleted, checkUnlock };

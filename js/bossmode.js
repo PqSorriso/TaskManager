@@ -44,6 +44,9 @@ var BossMode = (function() {
     overlay.classList.add('visible');
     active = true;
     if (typeof Sounds !== 'undefined') Sounds.click();
+    // Track para conquista secreta
+    var bc = parseInt(localStorage.getItem('fceux_boss_count') || '0') + 1;
+    localStorage.setItem('fceux_boss_count', String(bc));
   }
 
   function hide() {
