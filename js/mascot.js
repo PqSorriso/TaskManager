@@ -699,6 +699,7 @@ const Mascot = (() => {
         btn.textContent = acc.label;
         btn.addEventListener('click', () => {
           config.accessory = acc.id;
+          localStorage.setItem('fceux_mascot_manual', 'true');
           accDiv.querySelectorAll('.mc-acc-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           updatePreview();
@@ -771,6 +772,57 @@ const Mascot = (() => {
   const mcSaveBtn = document.getElementById('mcSaveBtn');
   if (mcSaveBtn) mcSaveBtn.addEventListener('click', savePersonalization);
 
+  // === EVOLUÇÃO VISUAL POR NÍVEL ===
+  function applyLevelEvolution() {
+    if (typeof Gamification === 'undefined') return;
+    var level = Gamification.getLevelInfo().level;
+
+    // Não sobrescrever se o usuário escolheu manualmente
+    var manualChoices = ['hat', 'cap', 'glasses', 'crown', 'antenna2', 'scarf'];
+    var isManual = localStorage.getItem('fceux_mascot_manual');
+    if (isManual === 'true') return;
+
+    // Evolução automática
+    var autoAccessory = '';
+    var autoColor = '';
+
+    if (level >= 20) {
+      autoAccessory = 'crown';
+      autoColor = '#FFD700';
+    } else if (level >= 15) {
+      autoAccessory = 'antenna2';
+      autoColor = '#ff44ff';
+    } else if (level >= 10) {
+      autoAccessory = 'glasses';
+      autoColor = '#00ffff';
+    } else if (level >= 7) {
+      autoAccessory = 'cap';
+      autoColor = '#44ff44';
+    } else if (level >= 5) {
+      autoAccessory = 'scarf';
+      autoColor = '';
+    }
+
+    if (autoAccessory && config.accessory !== autoAccessory) {
+      config.accessory = autoAccessory;
+      saveConfig();
+      drawIdle();
+    }
+
+    // Glow effect por nível
+    if (container) {
+      if (level >= 15) {
+        container.style.filter = 'drop-shadow(0 0 6px ' + (autoColor || '#00ffff') + ')';
+      } else if (level >= 10) {
+        container.style.filter = 'drop-shadow(0 0 4px rgba(0,255,255,0.5))';
+      } else if (level >= 5) {
+        container.style.filter = 'drop-shadow(0 0 2px rgba(0,200,100,0.4))';
+      } else {
+        container.style.filter = '';
+      }
+    }
+  }
+
   // === INIT ===
   function init() {
     if (!canvas || !ctx) return;
@@ -786,6 +838,10 @@ const Mascot = (() => {
     drawIdle();
     startBlink();
     initDrag();
+
+    // Evolução visual por nível
+    applyLevelEvolution();
+    setInterval(applyLevelEvolution, 60000);
 
     // Avaliar estado a cada 30 segundos
     setInterval(evaluateState, 30000);

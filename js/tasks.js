@@ -378,9 +378,13 @@ const TaskManager = (() => {
       const recLabels = {
         daily: '🔄 Diária',
         weekdays: '🔄 Úteis',
+        every2: '🔄 2 dias',
+        every3: '🔄 3 dias',
         weekly: '🔄 Semanal',
         biweekly: '🔄 Quinzenal',
-        monthly: '🔄 Mensal'
+        monthly: '🔄 Mensal',
+        monthly15: '🔄 Dia 15',
+        quarterly: '🔄 Trimestral'
       };
       const textCell3 = row.querySelector('.task-text-cell');
       if (textCell3) {
@@ -950,6 +954,19 @@ const TaskManager = (() => {
         break;
       case 'monthly':
         base.setMonth(base.getMonth() + 1);
+        break;
+      case 'every2':
+        base.setDate(base.getDate() + 2);
+        break;
+      case 'every3':
+        base.setDate(base.getDate() + 3);
+        break;
+      case 'monthly15':
+        base.setMonth(base.getMonth() + 1);
+        base.setDate(15);
+        break;
+      case 'quarterly':
+        base.setMonth(base.getMonth() + 3);
         break;
       default:
         return null;

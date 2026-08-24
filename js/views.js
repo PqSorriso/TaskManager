@@ -251,6 +251,35 @@ const Views = (() => {
     }
 
     cell.innerHTML = html;
+
+    // Drop zone - arrastar tarefa pra mudar data
+    if (dateStr && !otherMonth) {
+      cell.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        cell.classList.add('cal-drag-over');
+      });
+      cell.addEventListener('dragleave', function() {
+        cell.classList.remove('cal-drag-over');
+      });
+      cell.addEventListener('drop', async function(e) {
+        e.preventDefault();
+        cell.classList.remove('cal-drag-over');
+        var taskId = Number(e.dataTransfer.getData('text/plain'));
+        if (!taskId) return;
+        var tasks = TaskManager.getAll();
+        var task = tasks.find(function(t) { return t.id === taskId; });
+        if (!task) return;
+        task.dueDate = dateStr;
+        await TaskDB.update(task);
+        TaskManager.render();
+        renderCalendar();
+        if (typeof Notifications !== 'undefined') {
+          Notifications.showToast('📅 MOVIDO', '"' + task.text.substring(0, 20) + '" → ' + dateStr.substring(8) + '/' + dateStr.substring(5, 7), 'success', 3000);
+        }
+      });
+    }
+
     return cell;
   }
 
