@@ -776,99 +776,202 @@ var PixelAI = (function() {
   function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
   // === PROATIVO — PIXEL inicia conversa ===
+  // Memória pra não repetir frases
+  var usedPhrases = [];
+  var MAX_MEMORY = 30;
+
+  function pickUnique(arr) {
+    var available = arr.filter(function(p) { return usedPhrases.indexOf(p) === -1; });
+    if (available.length === 0) { usedPhrases = []; available = arr; }
+    var chosen = available[Math.floor(Math.random() * available.length)];
+    usedPhrases.push(chosen);
+    if (usedPhrases.length > MAX_MEMORY) usedPhrases.shift();
+    return chosen;
+  }
+
   function proactiveCheck() {
     var now = Date.now();
-    if (now - lastProactive < 1800000) return; // 30 min mínimo entre proativas
-
-    // Sugestão baseada em padrões
-    if (typeof PixelPatterns !== 'undefined') {
-      var suggestion = PixelPatterns.getProactiveSuggestion();
-      if (suggestion && Math.random() > 0.4) {
-        lastProactive = now;
-        showProactiveBubble(suggestion);
-        return;
-      }
-    }
+    if (now - lastProactive < 300000) return; // 5 min mínimo
 
     var ctx = getContext();
+    var msg = null;
+
+    // Sugestão baseada em padrões (30% chance)
+    if (!msg && typeof PixelPatterns !== 'undefined' && Math.random() > 0.7) {
+      var suggestion = PixelPatterns.getProactiveSuggestion();
+      if (suggestion) msg = suggestion;
+    }
+
+    // === CONTEXTUAIS (baseado no que tá rolando) ===
 
     // Tarefa atrasada
-    if (ctx.overdue.length > 0 && Math.random() > 0.5) {
-      lastProactive = now;
-      if (typeof Mascot !== 'undefined') {
-        Mascot.setState('worry', 3000);
-      }
-      showProactiveBubble('🚨 Tem ' + ctx.overdue.length + ' atrasada(s)! Clica em mim pra ver!');
-      return;
+    if (!msg && ctx.overdue.length > 0 && Math.random() > 0.4) {
+      if (typeof Mascot !== 'undefined') Mascot.setState('worry', 3000);
+      msg = pickUnique([
+        '🚨 Ei! Tem ' + ctx.overdue.length + ' atrasada(s). Vamos resolver? 💪',
+        '⚠️ ' + ctx.overdue.length + ' tarefa(s) vencida(s)! Eu sei que tu dá conta! 🤖',
+        '🔔 Alerta de atraso! ' + ctx.overdue.length + ' esperando. Bora zerar?',
+        '😰 Tô preocupado... ' + ctx.overdue.length + ' atrasada(s). Que tal atacar a primeira?',
+        '🚨 *sirene* ' + ctx.overdue.length + ' overdue! Prioriza e manda ver!',
+      ]);
     }
 
-    // Sem atividade
-    if (ctx.doneToday.length === 0 && ctx.hour >= 10 && Math.random() > 0.6) {
-      lastProactive = now;
-      showProactiveBubble('😴 Zero tarefas hoje? Bora mudar isso! Clica em mim!');
-      return;
+    // Manhã sem atividade
+    if (!msg && ctx.doneToday.length === 0 && ctx.hour >= 9 && ctx.hour < 12) {
+      msg = pickUnique([
+        '☀️ Bom dia! Zero tarefas ainda... bora começar devagar? Uma de cada vez!',
+        '🌅 Manhã é o melhor momento pra produzir! Que tal começar por uma fácil?',
+        '☕ Café pronto? Então bora! A primeira tarefa é a mais difícil de iniciar.',
+        '🤖 Sistema ocioso... a produtividade tá carregando ou travou? 😅',
+        '📋 Psiu! Suas tarefas tão te esperando. Começa pela mais urgente!',
+      ]);
     }
 
-    // Hábitos pendentes
-    if (ctx.habitsTotal > 0 && ctx.habitsToday < ctx.habitsTotal && ctx.hour >= 18 && Math.random() > 0.5) {
-      lastProactive = now;
-      showProactiveBubble('🎯 Faltam ' + (ctx.habitsTotal - ctx.habitsToday) + ' hábitos hoje!');
-      return;
+    // Tarde sem atividade
+    if (!msg && ctx.doneToday.length === 0 && ctx.hour >= 14 && ctx.hour < 17) {
+      msg = pickUnique([
+        '😴 Tarde e zero tarefas... tá tudo bem? Bora reagir! 💪',
+        '🕐 Já é tarde e a lista não andou. Faz uma rapidinha pelo menos!',
+        '🤖 Detectei 0 tarefas concluídas hoje. Erro? Bug? Ou preguiça? 😏',
+        '☕ Hora do café da tarde + 1 tarefa. Combo perfeito!',
+      ]);
     }
 
-    // Parabéns
-    if (ctx.doneToday.length >= 5 && Math.random() > 0.7) {
-      lastProactive = now;
-      var fireMessages = [
+    // Parabéns por produtividade
+    if (!msg && ctx.doneToday.length >= 3 && ctx.doneToday.length < 6 && Math.random() > 0.5) {
+      msg = pickUnique([
+        '👏 ' + ctx.doneToday.length + ' tarefas já! Tá indo bem, continua!',
+        '📈 ' + ctx.doneToday.length + ' feitas! A média nacional agradece! 😎',
+        '✅ ' + ctx.doneToday.length + ' done! Cada uma é uma vitória! 🏆',
+        '🤖 Produtividade detectada! ' + ctx.doneToday.length + ' completas. Análise: SATISFATÓRIO ✅',
+      ]);
+    }
+
+    if (!msg && ctx.doneToday.length >= 6 && Math.random() > 0.4) {
+      msg = pickUnique([
         '🔥 ' + ctx.doneToday.length + ' tarefas hoje! Tá ON FIRE!',
         '🏆 ' + ctx.doneToday.length + ' feitas! Você é uma MÁQUINA!',
         '⚡ ' + ctx.doneToday.length + '?! Tá jogando no modo FÁCIL?!',
-        '🚀 ' + ctx.doneToday.length + ' tarefas! Elon Musk que se cuide!',
-      ];
-      showProactiveBubble(fireMessages[Math.floor(Math.random() * fireMessages.length)]);
-      return;
+        '🚀 ' + ctx.doneToday.length + ' tarefas! O chefe que se cuide!',
+        '🤖 ALERTA: produtividade ACIMA do esperado. Análise: INCRÍVEL! 🏆',
+        '💪 ' + ctx.doneToday.length + ' tarefas! Seus colegas vão ficar com inveja!',
+      ]);
     }
 
-    // Humor aleatório
-    if (Math.random() > 0.85) {
-      lastProactive = now;
-      var humorMessages = [
-        '🤖 *bip bop* Tô aqui se precisar! Não sou ChatGPT mas tento! 😅',
-        '☕ Café já esfriou? Hora de refill! ☕',
-        '💪 Lembre: você é mais produtivo que 99% dos robôs! ...espera 🤔',
-        '🎮 Sabia que 10 cliques em mim abre o mini-game? ...ops, era segredo!',
-        '📊 Fato: cada tarefa concluída libera dopamina! Vicia! 🧠',
-        '🌧️ Tá chovendo em Joinville? Pra variar né... ☂️',
+    // Hábitos pendentes
+    if (!msg && ctx.habitsTotal > 0 && ctx.habitsToday < ctx.habitsTotal && ctx.hour >= 16 && Math.random() > 0.5) {
+      msg = pickUnique([
+        '🎯 Ei, faltam ' + (ctx.habitsTotal - ctx.habitsToday) + ' hábitos hoje! Não quebra o streak!',
+        '🎯 Teus hábitos tão te chamando! Falta(m) ' + (ctx.habitsTotal - ctx.habitsToday) + '.',
+        '🔥 O streak dos hábitos é sagrado! Faltam ' + (ctx.habitsTotal - ctx.habitsToday) + ' pra hoje.',
+      ]);
+    }
+
+    // === HORÁRIO ESPECÍFICO ===
+
+    if (!msg && ctx.hour === 8 && Math.random() > 0.5) {
+      msg = pickUnique([
+        '☀️ 8h! Dia começando. Qual a prioridade número 1 de hoje?',
+        '🌅 Bom dia! Dica: resolve a tarefa mais chata primeiro. Depois fica tudo mais fácil!',
+        '☕ 8h da matina! Café + tarefa difícil = combo imbatível!',
+      ]);
+    }
+
+    if (!msg && ctx.hour === 10 && Math.random() > 0.6) {
+      msg = pickUnique([
+        '☕ 10h! Hora do segundo café? Aproveita e marca mais uma tarefa! ✅',
+        '🕙 10h — como tá a produtividade? Se precisar, usa o Pomodoro! 🍅',
+      ]);
+    }
+
+    if (!msg && ctx.hour === 12 && Math.random() > 0.4) {
+      msg = pickUnique([
+        '🍽️ MEIO-DIA! Hora do almoço! Descansa e volta com tudo!',
+        '🍛 12h — vai almoçar! Recarrega a bateria que a tarde é longa.',
+        '🍕 Hora do rango! O cérebro precisa de combustível! 🧠',
+      ]);
+    }
+
+    if (!msg && ctx.hour === 14 && Math.random() > 0.6) {
+      msg = pickUnique([
+        '😴 Pós-almoço é difícil mesmo... um Pomodoro de 25min ajuda a acordar! 🍅',
+        '🕑 14h — se bateu sono, levanta, caminha 2 min e volta focado!',
+      ]);
+    }
+
+    if (!msg && ctx.hour >= 17 && ctx.hour < 18 && Math.random() > 0.4) {
+      msg = pickUnique([
+        '🌅 Reta final do dia! Que tal fechar 1 tarefa antes de ir?',
+        '⏰ Quase hora de ir! Revisa o que fez hoje — vai se surpreender! 📊',
+        '🏁 Sprint final! Uma tarefinha rápida e fecha o dia com chave de ouro! 🔑',
+        '🤖 17h detectado. Recomendação: finalizar 1 pendente e sair satisfeito!',
+      ]);
+    }
+
+    if (!msg && ctx.hour >= 22 && Math.random() > 0.5) {
+      msg = pickUnique([
+        '🌙 22h! Tá tarde... vai dormir! Amanhã é outro dia! 😴',
+        '🦉 Coruja noturna detectada! Mas descanso é produtividade também! 💤',
+        '🌙 Ei, amanhã cedo tu resolve melhor. Vai descansar!',
+      ]);
+    }
+
+    // === HUMOR / PERSONALIDADE ===
+    if (!msg && Math.random() > 0.55) {
+      msg = pickUnique([
+        '🤖 *olha ao redor* Tudo tranquilo por aqui... DEMAIS! Cria uma tarefa! 😤',
+        '☕ Conselho de robô: café quente + tarefa curta = felicidade instantânea.',
+        '💪 Sabia que 70% das pessoas desistem de metas? Você NÃO é 70%! 🏆',
+        '🤖 Tô aqui analisando... você é mais produtivo que a maioria dos humanos que conheço! (conheço poucos, mas conta! 😅)',
+        '📊 Fato científico: fazer listas ativa o mesmo prazer de completar tarefas! 🧠',
+        '🎮 Sabia que completar tarefas libera dopamina? Vicia mais que game! 🕹️',
         '🤖 Debug da vida: if (cansado) { café(); } else { produzir(); }',
-        '💡 Dica: CTRL+K abre a paleta mágica! Abracadabra! 🪄',
-        '🐱 O BYTE tá querendo carinho... clica nele! 🐾',
-        '🌙 "Não deixe pra amanhã o que pode deletar hoje" — Confúcio, provavelmente',
-        '🤖 Erro 404: preguiça não encontrada. Bora trabalhar!',
-        '🍕 Pizza resolve qualquer bug. Fato científico. 🔬',
-        '🎯 Modo hardcore: complete todas as tarefas antes das 10h!',
-        '🏋️ Seus dedos fazem mais exercício que muita gente na academia!',
-        '🤖 Meu criador disse "será rápido"... estou aqui há meses. 😅',
-      ];
-      showProactiveBubble(humorMessages[Math.floor(Math.random() * humorMessages.length)]);
-      return;
+        '💡 Dica: CTRL+K abre a paleta mágica! Tem de tudo lá!',
+        '🐱 O BYTE tá parecendo entediado... dá um clique nele! 🐾',
+        '🌙 "Não deixe pra amanhã o que pode deletar hoje" — Confúcio 😂',
+        '🤖 Erro 404: preguiça não encontrada. Status: PRODUTIVO!',
+        '🍕 Pizza resolve qualquer problema. Fato científico comprovado. 🔬',
+        '🎯 Desafio: complete todas as pendentes antes de sair hoje!',
+        '🏋️ Seus dedos fazem mais exercício que muita gente na academia! 💪',
+        '🤖 Meu criador disse "será rápido"... tô aqui há 155+ features depois. 😅',
+        '☕ Intervalo mental: fecha os olhos 30 segundos e respira fundo. Vai! Eu espero.',
+        '🧠 Curiosidade: o cérebro humano processa 60.000 pensamentos por dia. Foca em 1!',
+        '🤖 Relatório de status: PIXEL operacional. Humor: 87%. Café: necessário.',
+        '📈 Teoria: cada tarefa completada te deixa 0,7% mais feliz. Não tenho dados, mas parece verdade! 😂',
+        '🤖 Enquanto você trabalha, eu tô aqui torcendo. Literalmente. Sou código, mas torço. 🤖❤️',
+        '💡 Regra dos 2 minutos: se leva menos de 2 min, faz AGORA. Não pensa!',
+        '🎯 Eat the frog: comece pela tarefa mais chata. Depois tudo parece fácil!',
+        '🤖 *executa motivação.exe* Você consegue! Eu acredito! (tenho que acreditar, fui programado pra isso 😅)',
+        '📋 Organização é um superpoder. E você tem o melhor app pra isso! 😏',
+        '🤖 Log: [INFO] Usuário presente. Produtividade: em monitoramento. Status: APROVADO.',
+        '☀️ Água! Você bebeu água hoje? Hidratação = cérebro funcionando! 💧',
+        '🤖 Versão 3.0 carregada. 155+ features. E eu ainda faço piada. Multitasking! 😎',
+        '🧩 Quebra a tarefa grande em 3 menores. Confia, fica muito mais fácil!',
+        '🎮 A vida é um RPG. Cada tarefa é uma quest. XP é real aqui! ⭐',
+        '🤖 Processando... processando... resultado: você é incrível. Análise completa.',
+        '🌈 Dias difíceis existem pra valorizar os dias produtivos. Hoje é qual?',
+        '🤖 Se eu fosse humano, queria ser produtivo como você. Mas sou robô, então tá safe. 🤷‍♂️',
+      ]);
     }
 
-    // Horário específico
-    if (ctx.hour === 12 && Math.random() > 0.6) {
-      lastProactive = now;
-      showProactiveBubble('🍽️ MEIO-DIA! Hora do rango! Não pula refeição! 🍛');
-      return;
+    // === FALLBACK: dia da semana ===
+    if (!msg) {
+      var dayMessages = {
+        1: ['😤 SEGUNDA! Dia de mostrar quem manda! Bora começar forte!', '💪 Segunda é dia de reset. Nova semana, novas conquistas!'],
+        2: ['📋 Terça! Dia produtivo. Ontem foi aquecimento, hoje é pra valer!', '🚀 Terça-feira. Velocidade de cruzeiro ativada!'],
+        3: ['🐫 QUARTA! Metade da semana! Se chegou até aqui, termina com tudo!', '📊 Meio de semana. Hora de revisar as metas!'],
+        4: ['⚡ QUINTA! Quase lá. Sprint final começando!', '🏃 Quinta — amanhã é sexta! Antecipa o que puder!'],
+        5: ['🎉 SEXTOU! (quase) Fecha as pendentes e curte o fim de semana!', '🍻 Sexta! Resolve as urgentes e aproveita!'],
+        6: ['🎮 SÁBADO! Descansa... ou não? 😏', '☀️ Fim de semana! Recarrega as baterias!'],
+        0: ['😴 DOMINGO! Dia de planejamento. Prepara a semana que vem!', '🌿 Domingo zen. Se quiser, adianta alguma coisa. Se não, relaxa!']
+      };
+      var dayMsgs = dayMessages[new Date().getDay()] || dayMessages[1];
+      msg = pickUnique(dayMsgs);
     }
 
-    if (ctx.hour >= 17 && ctx.hour < 18 && Math.random() > 0.6) {
+    if (msg) {
       lastProactive = now;
-      var endMessages = [
-        '🌅 Tá quase na hora! Fecha o dia com chave de ouro! 🔑',
-        '⏰ Reta final! Última tarefa e liberdade! 🎉',
-        '🏁 Sprint final do dia! VAMO! 🏃',
-      ];
-      showProactiveBubble(endMessages[Math.floor(Math.random() * endMessages.length)]);
-      return;
+      showProactiveBubble(msg);
     }
   }
 
@@ -931,8 +1034,8 @@ var PixelAI = (function() {
   function init() {
     // Proativo a cada 5 minutos
     setInterval(proactiveCheck, 300000);
-    // Primeira verificação após 2 minutos
-    setTimeout(proactiveCheck, 120000);
+    // Primeira verificação após 1 minuto
+    setTimeout(proactiveCheck, 60000);
   }
 
   return { init: init, open: open, close: close, send: send };
