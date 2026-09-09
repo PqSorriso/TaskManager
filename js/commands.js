@@ -57,6 +57,8 @@ const Commands = (() => {
     { icon: '📜', label: 'Log de Atividades', shortcut: '', action: () => { close(); if (typeof ActivityLog !== 'undefined') ActivityLog.open(); } },
     { icon: '📊', label: 'Exportar CSV', shortcut: '', action: () => { close(); if (typeof Outlook !== 'undefined') Outlook.exportCSV(); } },
     { icon: '🆕', label: 'O que há de novo (Changelog)', shortcut: '', action: () => { close(); if (typeof Changelog !== 'undefined') Changelog.show(); } },
+    { icon: '🧠', label: 'Mini-game: Memory', shortcut: '', action: () => { close(); if (typeof MiniGames !== 'undefined') MiniGames.openMemory(); } },
+    { icon: '🐍', label: 'Mini-game: Snake', shortcut: '', action: () => { close(); if (typeof MiniGames !== 'undefined') MiniGames.openSnake(); } },
   ];
 
   function open() {

@@ -57,6 +57,7 @@ const ASSETS = [
   './js/sessioncomplete.js',
   './js/pixelpatterns.js',
   './js/dashboard.js',
+  './js/minigames.js',
 ];
 
 // Install — cacheia tudo

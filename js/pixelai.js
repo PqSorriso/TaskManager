@@ -191,6 +191,23 @@ var PixelAI = (function() {
       return 'Módulo de padrões não encontrado!';
     }
 
+    // Jogos
+    if (matches(lower, ['jogo', 'jogar', 'game', 'mini-game', 'brincar', 'divertir', 'snake', 'cobrinha', 'memory', 'memória', 'memoria'])) {
+      if (lower.includes('snake') || lower.includes('cobrinha')) {
+        setTimeout(function() { if (typeof MiniGames !== 'undefined') MiniGames.openSnake(); }, 500);
+        return '🐍 Abrindo Snake! Use as setas pra jogar. Boa sorte!';
+      }
+      if (lower.includes('memory') || lower.includes('memória') || lower.includes('memoria')) {
+        setTimeout(function() { if (typeof MiniGames !== 'undefined') MiniGames.openMemory(); }, 500);
+        return '🧠 Abrindo Memory! Encontre os pares! Boa sorte!';
+      }
+      return '🎮 Temos 3 jogos!\n\n' +
+        '🎯 PIXEL SMASH — clique no botão 🎮 acima\n' +
+        '🧠 MEMORY — diga "memory"\n' +
+        '🐍 SNAKE — diga "snake"\n\n' +
+        'Todos dão XP! Qual quer jogar?';
+    }
+
     // Ajuda / funcionalidades
     if (matches(lower, ['ajuda', 'help', 'como usar', 'funcionalidade', 'feature', 'o que posso', 'comandos'])) {
       return helpInfo();
