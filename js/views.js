@@ -84,7 +84,7 @@ const Views = (() => {
     kanbanEl.classList.remove('visible');
     calendarEl.classList.remove('visible');
     var agendaEl = document.getElementById('agendaView');
-    if (agendaEl) agendaEl.classList.remove('visible');
+    if (agendaEl) agendaEl.style.display = 'none';
     headerRow.style.display = 'none';
     sortBar.style.display = 'none';
 
@@ -100,6 +100,10 @@ const Views = (() => {
       calendarEl.classList.add('visible');
       if (calMode === 'month') renderCalendar();
       else renderWeek();
+    } else if (view === 'agenda') {
+      var agendaShow = document.getElementById('agendaView');
+      if (agendaShow) agendaShow.style.display = 'flex';
+      if (typeof Agenda !== 'undefined') Agenda.render();
     }
   }
 
