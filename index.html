@@ -192,6 +192,7 @@
         <button class="view-btn active" data-view="list">☰ Lista</button>
         <button class="view-btn" data-view="kanban">▦ Kanban</button>
         <button class="view-btn" data-view="calendar">📅 Cal</button>
+        <button class="view-btn" data-view="agenda">🕐 Agenda</button>
       </div>
     </div>
 
@@ -274,6 +275,16 @@
       </div>
       <div class="cal-grid" id="calGrid"></div>
       <div class="cal-week-grid" id="calWeekGrid" style="display:none"></div>
+    </div>
+
+    <!-- Agenda View -->
+    <div class="agenda-view" id="agendaView" style="display:none">
+      <div class="agenda-header">
+        <button class="cal-nav-btn" id="agendaPrev">◀</button>
+        <span class="cal-title" id="agendaTitle">Hoje</span>
+        <button class="cal-nav-btn" id="agendaNext">▶</button>
+      </div>
+      <div class="agenda-body" id="agendaBody"></div>
     </div>
 
     <!-- Mini Dashboard Bar -->
@@ -1707,6 +1718,9 @@
   <script src="js/activitylog.js"></script>
   <script src="js/changelog.js"></script>
   <script src="js/minigames.js"></script>
+  <script src="js/agenda.js"></script>
+  <script src="js/arcade.js"></script>
+  <script src="js/halloffame.js"></script>
   <script src="js/boot.js"></script>
   <script src="js/app.js"></script>
 

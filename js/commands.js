@@ -59,6 +59,8 @@ const Commands = (() => {
     { icon: '🆕', label: 'O que há de novo (Changelog)', shortcut: '', action: () => { close(); if (typeof Changelog !== 'undefined') Changelog.show(); } },
     { icon: '🧠', label: 'Mini-game: Memory', shortcut: '', action: () => { close(); if (typeof MiniGames !== 'undefined') MiniGames.openMemory(); } },
     { icon: '🐍', label: 'Mini-game: Snake', shortcut: '', action: () => { close(); if (typeof MiniGames !== 'undefined') MiniGames.openSnake(); } },
+    { icon: '🎮', label: 'Arcade — Mini-games', shortcut: '', action: () => { close(); if (typeof Arcade !== 'undefined') Arcade.open(); } },
+    { icon: '🏆', label: 'Hall da Fama — Recordes', shortcut: '', action: () => { close(); if (typeof HallOfFame !== 'undefined') HallOfFame.open(); } },
   ];
 
   function open() {

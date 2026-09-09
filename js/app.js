@@ -50,6 +50,7 @@
     DayPlan.init();
     ActivityLog.init();
     Goals.init();
+    Agenda.init();
     PixelPatterns.init();
     Changelog.init();
 
